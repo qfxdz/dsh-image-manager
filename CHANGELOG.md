@@ -6,6 +6,14 @@
 
 ### 修复
 
+- **`/compact` 与自动压缩报 `Cannot read properties of undefined (reading 'map')`**：
+  `@deepseek-ai/dsh-token-meter` 自己也会折叠 `image/offload` 事件，并且**无条件**执行
+  `event.data.targets.map(...)`；本插件此前写入的策略快照没有 `targets` 字段，导致该会话的
+  上下文计费折叠抛错 → 自动压缩失效、`/compact` 直接报 TypeError。
+  现在每条策略事件都会附带与「本次不发送」一致的 `targets`（incremental 语义兼容），
+  投影判断也改为 `v === 2` 优先，不会被 targets 降级成追加式。
+  已写入的历史事件另用 `patch-token-meter.sh` 给 token meter 加兜底。
+
 - **会话列表混入不该出现的条目**：按 dsh 自己会话栏的口径（`dsh-client-ui-workspace` 的
   `sessionVisible`）过滤——子代理会话、**归档会话**、以及除「当前」以外的空会话(blank)都不再出现；
   空会话此前会退化成以项目文件夹名命名的一行，看起来就像"文件夹也算会话"。

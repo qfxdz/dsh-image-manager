@@ -86,6 +86,31 @@ assert('写入了一条策略事件', session.appended.length === 1, JSON.string
 const policyEvent = session.appended[0].data;
 assert('策略事件是 v2 快照且上限为 2', policyEvent.v === 2 && policyEvent.maxImages === 2, JSON.stringify(policyEvent));
 
+// token meter 会无条件读 event.data.targets（缺了会抛 .map of undefined），
+// 所以每条策略事件都必须带上与「本次不发送」一致的 targets。
+assert('策略事件带 targets 数组（token meter 兼容）', Array.isArray(policyEvent.targets), JSON.stringify(policyEvent.targets));
+assert(
+	'targets 覆盖了全部不发送的图片位置',
+	JSON.stringify(policyEvent.targets) === JSON.stringify([{ seq: 1, imageIndexes: [0, 1, 2] }]),
+	JSON.stringify(policyEvent.targets),
+);
+assert(
+	'v2 事件里的 targets 不会把投影降级成追加式（仍按快照可逆）',
+	(() => {
+		const withTargets = { v: 2, inherit: true, maxImages: 5, pinned: [], dropped: [], labels: {}, targets: [{ seq: 1, imageIndexes: [0, 1, 2] }] };
+		const produced = projection.project({ type: 'image/offload', data: withTargets }, {
+			nodes: session.surface.nodes,
+			events: session._events,
+			baseSeq: 0,
+			messages: new Map(),
+		});
+		const out = [];
+		for (const [, message] of produced) for (const block of message.content ?? []) if (block.type === 'image') out.push(`${block.attachment.attachmentId}:${block.offloaded === true ? 'off' : 'on'}`);
+		return out.every((entry) => entry.endsWith(':on'));
+	})(),
+	'v2 + targets 被误判为 legacy',
+);
+
 const messages = projection.project({ type: 'image/offload', data: policyEvent }, {
 	nodes: session.surface.nodes,
 	events: session._events,
