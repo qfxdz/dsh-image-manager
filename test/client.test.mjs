@@ -62,39 +62,43 @@ const ok = expected.every((name) => registered.includes(name));
 console.log(`${ok ? 'PASS' : 'FAIL'}  五个入口都注册了: ${JSON.stringify(registered)}`);
 if (!ok) process.exitCode = 1;
 
-// ---- 会话目录 merge：下拉必须包含「全部会话」，而不只是 Host 里已加载的 ----
+// ---- 会话目录 merge：只列真正的会话 ----------------------------------------
 const catalog = {
-	ids: ['s3', 's1', 's2'],
+	ids: ['s1', 's2', 's3', 's4', 's5', 's6', 's7'],
+	current: 's3',
 	byId: {
-		s1: { displayTitle: '会话一', updatedAt: 100 },
-		s2: { title: 'S2', updatedAt: 300 },
-		s3: { displayTitle: '会话三', updatedAt: 200, running: true },
+		s1: { displayTitle: '修复登录', updatedAt: 500 },
+		s2: { displayTitle: '子代理A', origin: 'subagent', parentId: 's1', updatedAt: 900 },
+		s3: { displayTitle: 'ceshi', blank: true, updatedAt: 800 },
+		s4: { displayTitle: 'ceshi', blank: true, updatedAt: 700 },
+		s5: { displayTitle: '已归档的会话', updatedAt: 600 },
+		s6: { displayTitle: 'ceshi', updatedAt: 400 },
+		s7: { displayTitle: 'ceshi', updatedAt: 300 },
 	},
-	current: 's2',
 };
-const live = [{ id: 's2', title: 'S2', images: 9, maxImages: 8, inherit: true }];
-const rows = exportsObject.buildSessionRows(catalog, live);
-console.log(`PASS  合并后共 ${rows.length} 行（目录 3 行，live 只有 1 行）`);
-const labels = rows.map((row) => `${row.id}:${row.live ? 'live' : '未加载'}:${row.images ?? '-'}`);
-console.log(`       ${JSON.stringify(labels)}`);
-const order = rows.map((row) => row.id).join(',');
-const expectOk =
-	rows.length === 3 &&
-	order === 's2,s3,s1' &&
-	rows[0].live === true &&
-	rows[0].images === 9 &&
-	rows[0].inherit === true &&
-	rows[1].live === false &&
-	rows[1].running === true &&
-	rows[2].live === false;
-console.log(`${expectOk ? 'PASS' : 'FAIL'}  按 updatedAt 排序、live 标记与图片数正确（${order}）`);
-if (!expectOk) process.exitCode = 1;
-console.log(`PASS  未加载的会话标题仍来自目录：${rows[2].title === '会话一' ? '会话一' : rows[2].title}`);
+const live = [{ id: 's1', title: '修复登录', images: 9, maxImages: 8, inherit: true }];
+const archived = ['s5'];
+const rows = exportsObject.buildSessionRows(catalog, live, archived);
+const ids = rows.map((row) => row.id).join(',');
 
-// 目录不可用时退回 live 列表
-const fallback = exportsObject.buildSessionRows(null, [{ id: 'x', images: 1, maxImages: 8, inherit: true }]);
-const fallbackOk = fallback.length === 1 && fallback[0].live === true && fallback[0].id === 'x';
-console.log(`${fallbackOk ? 'PASS' : 'FAIL'}  目录缺失时退回 live 列表`);
+const filterOk = ids === 's3,s1,s6,s7';
+console.log(`${filterOk ? 'PASS' : 'FAIL'}  过滤子代理/归档/非当前空会话，按 updatedAt 倒序：${ids}`);
+if (!filterOk) process.exitCode = 1;
+
+console.log(`PASS  当前空会话显示为占位标题：${rows[0].title}`);
+const liveOk = rows[1].live === true && rows[1].images === 9 && rows[1].inherit === true;
+console.log(`${liveOk ? 'PASS' : 'FAIL'}  live 会话带图片数与归属：${JSON.stringify({ id: rows[1].id, live: rows[1].live, images: rows[1].images })}`);
+if (!liveOk) process.exitCode = 1;
+
+const dedup = rows.filter((row) => row.title.startsWith('ceshi'));
+const dedupOk = dedup.length === 2 && dedup.every((row) => /ceshi · \S+$/.test(row.title)) && dedup[0].title !== dedup[1].title;
+console.log(`${dedupOk ? 'PASS' : 'FAIL'}  同名会话补短 id 去重：${JSON.stringify(dedup.map((row) => row.title))}`);
+if (!dedupOk) process.exitCode = 1;
+
+// 目录不可用时退回 live 列表（仍按归档集合过滤）
+const fallback = exportsObject.buildSessionRows(null, [{ id: 'x', images: 1, maxImages: 8, inherit: true }, { id: 'y' }], ['y']);
+const fallbackOk = fallback.length === 1 && fallback[0].id === 'x' && fallback[0].live === true;
+console.log(`${fallbackOk ? 'PASS' : 'FAIL'}  目录缺失时退回 live 列表并过滤归档`);
 if (!fallbackOk) process.exitCode = 1;
 
 console.log(process.exitCode === 1 ? '\n== 客户端冒烟测试失败 ==' : '\n== 客户端冒烟测试通过 ==');
