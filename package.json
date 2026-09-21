@@ -27,13 +27,13 @@
   ],
   "license": "MIT",
   "author": "dsh-image-manager contributors",
-  "homepage": "https://github.com/OWNER/dsh-image-manager#readme",
+  "homepage": "https://github.com/qfxdz/dsh-image-manager#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OWNER/dsh-image-manager.git"
+    "url": "git+https://github.com/qfxdz/dsh-image-manager.git"
   },
   "bugs": {
-    "url": "https://github.com/OWNER/dsh-image-manager/issues"
+    "url": "https://github.com/qfxdz/dsh-image-manager/issues"
   },
   "engines": {
     "node": ">=20"

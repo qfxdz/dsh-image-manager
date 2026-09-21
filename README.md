@@ -1,6 +1,6 @@
 # 多模态图片管理 · dsh-image-manager
 
-[![CI](https://github.com/OWNER/dsh-image-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/dsh-image-manager/actions/workflows/ci.yml)
+[![CI](https://github.com/qfxdz/dsh-image-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/qfxdz/dsh-image-manager/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](https://nodejs.org)
 
@@ -38,7 +38,7 @@
 
 ```bash
 # 1) 先拿到本插件源码，再把它作为 bundle 装进 web profile（幂等；已装则跳过）
-git clone https://github.com/OWNER/dsh-image-manager.git
+git clone https://github.com/qfxdz/dsh-image-manager.git
 /path/to/dsh/node_modules/.bin/dsh plugin --profile web add \
   "$PWD/dsh-image-manager"
 

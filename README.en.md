@@ -1,6 +1,6 @@
 # Multimodal Image Manager · dsh-image-manager
 
-[![CI](https://github.com/OWNER/dsh-image-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/dsh-image-manager/actions/workflows/ci.yml)
+[![CI](https://github.com/qfxdz/dsh-image-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/qfxdz/dsh-image-manager/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](https://nodejs.org)
 
@@ -40,7 +40,7 @@ session (shown as placeholders) and can be restored or permanently excluded at a
 
 ```bash
 # 1) register this directory as a bundle in the web profile (idempotent)
-git clone https://github.com/OWNER/dsh-image-manager.git
+git clone https://github.com/qfxdz/dsh-image-manager.git
 /path/to/dsh/node_modules/.bin/dsh plugin --profile web add "$PWD/dsh-image-manager"
 
 # 2) restart dsh — a newly added bundle is NOT hot-loaded

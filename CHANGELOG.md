@@ -32,5 +32,5 @@
 - 离线测试：Host 逻辑单测（17 条）+ HTTP 接口单测（11 条，含 `/api/image` 字节流）+ 浏览器半边冒烟测试，`npm test` 一把跑完。
 - 安装脚本 `install.sh`：安装 → 重启 dsh → HTTP 自检，幂等可重复执行。
 
-[Unreleased]: https://github.com/OWNER/dsh-image-manager/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/OWNER/dsh-image-manager/releases/tag/v0.1.0
+[Unreleased]: https://github.com/qfxdz/dsh-image-manager/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/qfxdz/dsh-image-manager/releases/tag/v0.1.0
