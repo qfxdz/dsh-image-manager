@@ -1,0 +1,11 @@
+# dsh-image-manager bundle patch。
+#
+# 1) 接管 image/offload 事件类型：内置的 compaction-image-offload 只会“永久丢掉
+#    最旧的图片”，本插件需要把同一个事件解释为「完整策略快照」，从而支持挑选、
+#    恢复、改上限。禁用内置行后由本插件注册同类型投影（二选一，不能同时注册）。
+# 2) 插入本插件。
+- id: image-offload
+  disabled: true
+- insert:
+    - id: image-manager
+      name: 'dsh-image-manager'

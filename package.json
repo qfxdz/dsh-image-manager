@@ -1,0 +1,61 @@
+{
+  "name": "dsh-image-manager",
+  "version": "0.1.0",
+  "description": "多模态图片管理：限制每个模型请求携带的图片数量（全局默认 + 会话覆盖），让模型先挑选并标注要发送的图片，并提供会话/全局面板做预览、排除与恢复。 · Multimodal image manager for DeepSeek Harness: per-session/global image caps, AI-side image picking with labels, and a preview/exclude/restore panel.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "README.en.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "image",
+    "vision",
+    "multimodal"
+  ],
+  "license": "MIT",
+  "author": "dsh-image-manager contributors",
+  "homepage": "https://github.com/OWNER/dsh-image-manager#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OWNER/dsh-image-manager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/OWNER/dsh-image-manager/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/logic.test.mjs test/http.test.mjs test/client.test.mjs",
+    "check": "npm run test && npm pack --dry-run"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dsh": {
+    "manifestVersion": 1,
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-sidebar",
+        "@deepseek-ai/dsh-client-ui-slots"
+      ]
+    }
+  }
+}

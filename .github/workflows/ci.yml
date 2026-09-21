@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # 插件零依赖：不需要 npm install，直接跑离线单测
+      - name: Test
+        run: npm test
+
+  package:
+    name: package sanity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate manifest & bundle patch
+        run: |
+          node -e "
+            const fs = require('node:fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            if (pkg.private === true) throw new Error('package.json 仍是 private，无法发布');
+            if (!pkg.dsh?.bundle?.patch) throw new Error('缺少 dsh.bundle.patch');
+            if (!fs.existsSync(pkg.dsh.bundle.patch)) throw new Error('bundle patch 文件不存在');
+            for (const f of ['lib/index.js', 'lib/client.js']) {
+              if (!fs.existsSync(f)) throw new Error('缺少必需文件 ' + f);
+            }
+            if (!fs.existsSync('LICENSE')) throw new Error('缺少 LICENSE');
+            console.log('manifest ok:', pkg.name + '@' + pkg.version);
+          "
+
+      - name: Show npm pack contents
+        run: npm pack --dry-run
+
+      - name: Fail if forbidden paths leak into the tarball
+        run: |
+          npm pack --json > /tmp/pack.json
+          node -e "
+            const files = JSON.parse(require('node:fs').readFileSync('/tmp/pack.json'))[0].files.map(f => f.path);
+            const bad = files.filter(p => /(^|\/)(test|\.github|node_modules)\//.test(p) || /\.env|\.log$/.test(p));
+            if (bad.length) { console.error('不该进包的文件:', bad); process.exit(1); }
+            console.log('pack ok, ' + files.length + ' files');
+          "
+
+  secret-scan:
+    name: secret & personal-path scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan tracked files
+        run: |
+          # 只扫源码与文档；凭据、私钥、个人绝对路径都不应出现
+          if git grep -nIE '/home/[a-z0-9_-]+/|/Users/[A-Za-z0-9_-]+/|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}|gh[pousr]_[A-Za-z0-9]{20,}|BEGIN [A-Z ]*PRIVATE KEY' \
+              -- ':!CHANGELOG.md' ':!CONTRIBUTING.md' ':!SECURITY.md' ':!LICENSE' ':!.github/' ; then
+            echo "::error::发现疑似个人信息或凭据，请替换为占位符后再提交"
+            exit 1
+          fi
+          echo "clean"

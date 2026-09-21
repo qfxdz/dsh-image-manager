@@ -1,0 +1,25 @@
+# 依赖与构建产物（本插件刻意零依赖，正常情况不会有 node_modules）
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# 本地安装 / 自检产生的日志
+*.log
+/tmp/
+.dsh-image-manager-install.log
+
+# 打包产物
+*.tgz
+
+# 编辑器 / 系统
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# 本地覆盖的环境变量（不要提交任何凭据）
+.env
+.env.*
+!.env.example

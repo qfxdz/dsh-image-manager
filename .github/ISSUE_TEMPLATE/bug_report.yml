@@ -1,0 +1,62 @@
+name: Bug 报告
+description: 报告 dsh-image-manager 的问题（请不要附带 token、密码或真实会话 id）
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！提交前请先确认：已按 README 的说明重启过 dsh（Host 半边只在启动时加载），
+        并且**已删掉日志/截图里的用户名、token、会话 id、附件 id 等敏感信息**。
+  - type: input
+    id: version
+    attributes:
+      label: 插件版本
+      description: package.json 里的 version，或安装的目录/commit
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: 运行环境
+      description: dsh 版本、Node 版本、操作系统与浏览器
+      placeholder: dsh 0.1.6-alpha.2 / Node 24.19.0 / Ubuntu 24.04 / Chrome 140
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 在会话里上传 10 张图
+        2. 打开「图片 N/M」面板
+        3. …
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为
+      description: 有报错请贴关键片段（已打码），或说明面板上的具体表现
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: 出问题的部分
+      options:
+        - 会话按钮 / 管理弹窗
+        - 设置 →「图片管理」
+        - 侧边栏「图片」全局页
+        - 模型工具（images_list / images_select / images_limit / images_exclude / images_include）
+        - HTTP 接口
+        - 安装 / 生效 / 卸载
+        - 文档
+    validations:
+      required: true
